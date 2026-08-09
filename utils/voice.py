@@ -6,8 +6,15 @@ class VoiceAssistant:
 
     def __init__(self):
 
-        self.engine = pyttsx3.init()
-        self.engine.setProperty('rate', 140)
+        self.engine = None
+
+        try:
+            self.engine = pyttsx3.init()
+            self.engine.setProperty("rate", 140)
+
+        except Exception:
+            # Streamlit Cloud or unsupported environment
+            self.engine = None
 
         # Speak at most once every 30 seconds
         self.cooldown = 30
@@ -19,18 +26,29 @@ class VoiceAssistant:
 
     def speak(self, message):
 
+        # Voice unavailable (Streamlit Cloud)
+        if self.engine is None:
+            return
+
         now = time.time()
 
         # Don't repeat the same message
-        if message == self.last_message and message != "No Face Detected!, please come in front of screen.":
+        if (
+            message == self.last_message
+            and message != "No Face Detected!, please come in front of screen."
+        ):
             return
 
         # Respect cooldown
         if now - self.last_spoken < self.cooldown:
             return
 
-        self.engine.say(message)
-        self.engine.runAndWait()
+        try:
+            self.engine.say(message)
+            self.engine.runAndWait()
 
-        self.last_spoken = now
-        self.last_message = message
+            self.last_spoken = now
+            self.last_message = message
+
+        except Exception:
+            pass
