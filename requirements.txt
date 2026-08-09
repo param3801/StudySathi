@@ -7,3 +7,4 @@ pandas
 matplotlib
 av
 pyttsx3
+scipy
